@@ -13,20 +13,22 @@ const client = new Client({
 
 app.post('/event', async (req, res) => {
     try {
-        const { userName, action } = req.body;
+        const { userName, action, customMessage } = req.body;
         const channel = await client.channels.fetch(process.env.CHANNEL_ID);
 
         if (!channel) return res.status(404).send('Channel not found');
 
         // Logic for different actions
         let message = '';
-        if (action === 'poke') {
-            message = `👉 **The Host:** Stop that! **${userName}** is poking me!`;
+        if (action === 'instigate') {
+            console.log(`${userName} is instigating`);
+            message = customMessage;
         } else {
-            message = `🎬 **The Host:** **${userName}** just sent an update!`;
         }
 
         await channel.send(message);
+        console.log(message);
+        
         res.status(200).json({ success: true });
     } catch (error) {
         console.error('Error:', error);
@@ -41,4 +43,13 @@ client.once('clientReady', (c) => {
 client.login(process.env.DISCORD_TOKEN);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 API running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 API running on ${PORT}`));
+
+
+// copy files corresponding to headless server:
+
+// compose.yaml
+// Dockerfile
+// index.js
+// package-lock.json
+// package.json
