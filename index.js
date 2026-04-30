@@ -1,8 +1,10 @@
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import express from 'express';
+import cors from 'cors';
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 const client = new Client({ 
@@ -16,9 +18,13 @@ app.post('/event', async (req, res) => {
 
         if (!channel) return res.status(404).send('Channel not found');
 
-        const message = action === 'upload' 
-            ? `🎬 **The Host:** Stop everything! **${userName}** just submitted an entry.` 
-            : `🎭 **The Host:** ${userName} is active!`;
+        // Logic for different actions
+        let message = '';
+        if (action === 'poke') {
+            message = `👉 **The Host:** Stop that! **${userName}** is poking me!`;
+        } else {
+            message = `🎬 **The Host:** **${userName}** just sent an update!`;
+        }
 
         await channel.send(message);
         res.status(200).json({ success: true });
@@ -28,8 +34,8 @@ app.post('/event', async (req, res) => {
     }
 });
 
-client.once('ready', () => {
-    console.log(`✅ The Host (ESM) is live as ${client.user.tag}`);
+client.once('clientReady', (c) => {
+    console.log(`✅ The Host is live as ${c.user.tag}`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
